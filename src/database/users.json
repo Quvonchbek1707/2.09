@@ -1,0 +1,32 @@
+[
+    {
+        "id":2,
+        "name":"Sobir",
+        "phone":998912345678
+    },
+    {
+        "id":3,
+        "name":"Akobir",
+        "phone":998901234567
+    },
+    {
+        "id":4,
+        "name":"Asror",
+        "phone":998330711707
+    },
+    {
+        "id":5,
+        "name":"Aziz",
+        "phone":998330711708
+    },
+    {
+        "id":6,
+        "name":"Laziz",
+        "phone":998330711703
+    },
+    {
+        "id":7,
+        "name":"Daler",
+        "phone":998982344534
+    }
+]
