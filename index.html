@@ -100,6 +100,112 @@
 			</div>
 		</div>
 	</div>
-	<!-- <script src="./js/look.js"></script> -->
+	<script>
+		// Fetch and display users
+		fetch('http://localhost:3000/users/all')
+			.then(response => response.json())
+			.then(users => {
+				const customersList = document.querySelector('.customers-list');
+				customersList.innerHTML = ''; // Clear mock data
+				users.forEach(user => {
+					const li = document.createElement('li');
+					li.className = 'customer-item';
+					li.innerHTML = `
+						<span class="customer-name">${user.name}</span>
+						<a class="customer-phone" href="tel:${user.phone}">${user.phone}</a>
+					`;
+					li.addEventListener('click', () => {
+						document.getElementById('clientId').textContent = user.id;
+						document.getElementById('userHeader').textContent = user.name;
+						// Fetch orders for this user
+						fetchOrders(user.id);
+					});
+					customersList.appendChild(li);
+				});
+			})
+			.catch(error => console.error('Error fetching users:', error));
+
+		function fetchOrders(userId) {
+			fetch('http://localhost:3000/orders/all')
+				.then(response => response.json())
+				.then(orders => {
+					const userOrders = orders.filter(order => order.userId === userId);
+					const ordersList = document.querySelector('.orders-list');
+					ordersList.innerHTML = '';
+					userOrders.forEach(order => {
+						fetch(`http://localhost:3000/foods/single/${order.foodId}`)
+							.then(res => res.json())
+							.then(food => {
+								const li = document.createElement('li');
+								li.className = 'order-item';
+								li.innerHTML = `
+									<img src="./img/${food.foodName.toLowerCase()}.jpeg">
+									<div>
+										<span class="order-name">${food.foodName}</span>
+										<span class="order-count">${order.count}</span>
+									</div>
+								`;
+								ordersList.appendChild(li);
+							});
+					});
+				})
+				.catch(error => console.error('Error fetching orders:', error));
+		}
+
+		// Fetch and populate foods select
+		fetch('http://localhost:3000/foods/all')
+			.then(response => response.json())
+			.then(foods => {
+				const foodsSelect = document.getElementById('foodsSelect');
+				foodsSelect.innerHTML = ''; // Clear mock options
+				foods.forEach(food => {
+					const option = document.createElement('option');
+					option.value = food.id;
+					option.textContent = food.foodName;
+					foodsSelect.appendChild(option);
+				});
+			})
+			.catch(error => console.error('Error fetching foods:', error));
+
+		// Handle user add form
+		document.getElementById('userAdd').addEventListener('submit', (e) => {
+			e.preventDefault();
+			const name = document.getElementById('usernameInput').value;
+			const phone = document.getElementById('telephoneInput').value;
+			const user = { name, phone };
+			fetch('http://localhost:3000/users', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(user)
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log('User added:', data);
+				// Refresh users list
+				location.reload();
+			})
+			.catch(error => console.error('Error adding user:', error));
+		});
+
+		// Handle foods form (assuming it's for orders)
+		document.getElementById('foodsForm').addEventListener('submit', (e) => {
+			e.preventDefault();
+			const foodId = document.getElementById('foodsSelect').value;
+			const count = document.getElementById('foodsCount').value;
+			const userId = parseInt(document.getElementById('clientId').textContent);
+			const order = { userId, foodId: parseInt(foodId), count: parseInt(count) };
+			fetch('http://localhost:3000/orders', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(order)
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log('Order added:', data);
+				// Refresh or update orders display
+			})
+			.catch(error => console.error('Error adding order:', error));
+		});
+	</script>
 </body>
 </html>
